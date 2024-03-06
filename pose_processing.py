@@ -132,9 +132,17 @@ def get_frames_angles(video_path) -> tuple:
             pose_processed_frame , landmark_results = pose_process_image(frame, poseModel)
 
 
+            image = draw_landmarks(landmark_results, poseDrawing, pose, pose_processed_frame)
+
+            # Test
+            # cv2.imshow("Frame" , image)
+            # cv2.waitKey(1)
+
             # 2) Get the Angles
 
-
+            h,w, _ = image.shape 
+            
+            angles = get_angles_for_each_frame(pose, landmark_results, image, h, w)
 
             # 3) Save the frame and save the angles
 
@@ -147,6 +155,42 @@ def get_frames_angles(video_path) -> tuple:
 
 import mediapipe as mp
 from mediapipe.python.solutions.pose import Pose
+
+
+
+def get_angles_for_each_frame(pose, landmark_results, image, h, w):
+    
+    # 6 angles
+    angles = []
+
+
+    angle = 56
+
+    angles.append(angle)
+
+    angle = 170
+
+    angles.append(angle)
+
+
+
+
+def draw_landmarks(results, mp_drawing, mp_pose, image):
+    # for idx (index), x (value) in enumerate(_____):   \\storing both the index and the value
+    # work w/both variables simultaneously; requires
+    for idx, landmark in enumerate(results.pose_landmarks.landmark):
+        # we care about 11-16 and 23-28
+        if idx in [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 17, 18, 19, 20, 21, 22, 29, 30, 31, 32]:
+            results.pose_landmarks.landmark[idx].visibility = 0  # remove visibility of specific landmarks
+
+    # draw landmarks
+    mp_drawing.draw_landmarks(image, results.pose_landmarks, mp_pose.POSE_CONNECTIONS,
+                              mp_drawing.DrawingSpec(color=(255, 0, 0), thickness=2, circle_radius=2),
+                              # customize color, etc
+                              mp_drawing.DrawingSpec(color=(245, 66, 230), thickness=2, circle_radius=2))
+
+    return image
+
 
 def initializePoseTools():
 
@@ -171,6 +215,8 @@ def pose_process_image(openCVFrame, poseModel : Pose ) -> tuple:
     # Since it's in mediapipe image format now, we can use the pose model
 
 
+
+    # After this line, rgbImage now has the lines and marks
     landmark_results = poseModel.process(rgbImage)
     
     if landmark_results.pose_landmarks:
@@ -185,12 +231,14 @@ def pose_process_image(openCVFrame, poseModel : Pose ) -> tuple:
             print()
     
     
-    pose_processed_frame = None
+    # BGR  <-------- RGB
+    openCVFrame = cv2.cvtColor(rgbImage , cv2.COLOR_RGB2BGR)
 
+    
     
 
 
-    return (pose_processed_frame, landmark_results)
+    return (openCVFrame, landmark_results)
 
     # .mov, mp4 -- video extensions
     # .pdf .txt -- text extensions
