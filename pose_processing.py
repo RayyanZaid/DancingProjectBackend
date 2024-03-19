@@ -156,13 +156,49 @@ def get_frames_angles(video_path) -> tuple:
 import mediapipe as mp
 from mediapipe.python.solutions.pose import Pose
 
+import numpy as np
 
+def calculate_angle(a,b,c):
+    
+    # a = b = c [x,y]
+
+    a = np.array(a)
+    b = np.array(b)
+    c = np.array(c)
+
+
+    # USE arctan to calculate the angle
+
+
+
+
+# function name : plot_angle
+# parameters : p1, p2, p3, landmark_results, image, h , w
+def plot_angle(p1,p2,p3,landmark_result,image,h ,w):
+
+    a = [   landmark_result[p1].x   ,   landmark_result[p1].y        ]
+
+    b = [     landmark_result[p2].x ,  landmark_result[p2].y   ]
+    c = [     landmark_result[p3].x ,   landmark_result[p2].y  ]
+
+    
+    angle = calculate_angle(a,b,c)
 
 def get_angles_for_each_frame(pose, landmark_results, image, h, w):
     
     # 6 angles
     angles = []
 
+
+    # 3 points
+        # 1. Left Shoulder
+        # 2. Left Elbow
+        # 3. Left Wrist
+    
+    angle, image = plot_angle(pose.PoseLandmark.LEFT_SHOULDER.value,
+                              pose.PoseLandmark.LEFT_ELBOW.value,
+                              pose.PoseLandmark.LEFT_WRIST.value, landmark_results, image, h, w)
+    
 
     angle = 56
 
