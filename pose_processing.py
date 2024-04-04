@@ -34,6 +34,12 @@ def process_videos(videoPath1 : str , videoPath2 : str):
     frames1 , imageName1 = get_frames_angles(videoPath1)
     frames2 , imageName2 = get_frames_angles(videoPath2)
 
+    
+def make_directory(name : str):
+
+    # if the directory does NOT exist, create it
+    if not os.path.isdir(name):
+        os.mkdir(name)
 
 
 # Datatype -- int, float, string, bool
@@ -85,7 +91,11 @@ def get_frames_angles(video_path) -> tuple:
 
     # main part of function is frames
     frame_angles : list = []
-    image_name : str = ""
+    
+    basename = os.path.basename(video_path)
+    image_name , _ = os.path.splitext(basename)
+
+    make_directory(image_name)
 
 
     pose , poseDrawing = initializePoseTools()
@@ -103,6 +113,9 @@ def get_frames_angles(video_path) -> tuple:
     cap = cv2.VideoCapture(video_path)
     fps = cap.get(cv2.CAP_PROP_FPS)
     print("FPS: " , fps)
+
+
+    img_count = 1
 
     with pose.Pose(
         min_detection_confidence = 0.5,
@@ -157,6 +170,15 @@ def get_frames_angles(video_path) -> tuple:
             # ]
 
             frame_angles.append(angles)
+
+                            #   golfVideo/1
+            imageFilePath = f"{image_name}/{img_count}.jpg"
+            img_count += 1
+
+            # At the path, save the image
+            cv2.imshow('Video' , image)
+            cv2.waitKey(1)
+            cv2.imwrite(imageFilePath, image)
 
 
 
