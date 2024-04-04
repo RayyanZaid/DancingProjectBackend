@@ -83,7 +83,8 @@ import cv2
 def get_frames_angles(video_path) -> tuple:
 
 
-    frames : list = []
+    # main part of function is frames
+    frame_angles : list = []
     image_name : str = ""
 
 
@@ -100,7 +101,8 @@ def get_frames_angles(video_path) -> tuple:
 
 
     cap = cv2.VideoCapture(video_path)
-
+    fps = cap.get(cv2.CAP_PROP_FPS)
+    print("FPS: " , fps)
 
     with pose.Pose(
         min_detection_confidence = 0.5,
@@ -142,15 +144,23 @@ def get_frames_angles(video_path) -> tuple:
 
             h,w, _ = image.shape 
             
-            angles = get_angles_for_each_frame(pose, landmark_results, image, h, w)
+            angles : list = get_angles_for_each_frame(pose, landmark_results, image, h, w)
 
             # 3) Save the frame and save the angles
 
+            # frames = [
+        
+            #     [45.6, 78.1, 98.1],     # 1
+            #      [5.6, 34.1, 98.1],     # 2
+            #       [9.6, 78.1, 98.1],   
+            #        [45.6, 78.1, 98.1],                      
+            # ]
+
+            frame_angles.append(angles)
 
 
 
-
-    return (frames, image_name)
+    return (frame_angles, image_name)
 
 
 import mediapipe as mp
@@ -160,14 +170,42 @@ import numpy as np
 
 def calculate_angle(a,b,c):
     
-    # a = b = c [x,y]
+    # a = b = c = [x,y]
 
-    a = np.array(a)
-    b = np.array(b)
-    c = np.array(c)
+    a = np.array(a) # p1
+    b = np.array(b) # p2
+    c = np.array(c) # p3
 
 
     # USE arctan to calculate the angle
+
+    radians = np.arctan2(c[1] - b[1], c[0] - b[0])   -    np.arctan2(a[1] - b[1], a[0] - b[0])
+
+    degrees = np.abs(radians * 180.0 / np.pi)
+
+    if degrees > 180.0:
+
+        degrees = 360 - degrees
+
+    return round(degrees,1)
+
+
+
+def draw_angle(actualCoordinate : tuple, image, angle):
+
+    
+
+    angleStr = str(angle)
+
+    font = cv2.FONT_HERSHEY_SIMPLEX
+    fontScale = 0.4
+    color = (255,255,255)
+    thickness = 1
+
+    
+    drawnImage = cv2.putText(image,angleStr, actualCoordinate,font,fontScale,color,thickness)
+
+    return drawnImage
 
 
 
@@ -176,40 +214,104 @@ def calculate_angle(a,b,c):
 # parameters : p1, p2, p3, landmark_results, image, h , w
 def plot_angle(p1,p2,p3,landmark_result,image,h ,w):
 
+    landmark_result = landmark_result.pose_landmarks.landmark
     a = [   landmark_result[p1].x   ,   landmark_result[p1].y        ]
 
     b = [     landmark_result[p2].x ,  landmark_result[p2].y   ]
     c = [     landmark_result[p3].x ,   landmark_result[p2].y  ]
 
-    
+    # Step 1 : Calculate the angle in degrees
+
     angle = calculate_angle(a,b,c)
 
-def get_angles_for_each_frame(pose, landmark_results, image, h, w):
+    # angle = 134.6
+
+    # Step 2 : Draw the angle on the image
+
+    # the middle angle (b), angle calculation, image that we're gonna draw on
+
+
+    actualXCoordinate = int(b[0] * w)
+    actualYCoordinate = int(b[1] * h)
+
+    actualCoordinate = tuple(np.multiply(b,[w,h]).astype(int))
+
+
+    actualCoordinate = (actualXCoordinate,actualYCoordinate)
+
+
+    drawnImage = draw_angle(actualCoordinate, image, angle)
+    
+    return angle, drawnImage
+
+
+
+def get_angles_for_each_frame(mp_pose, landmarks, image, h, w):
     
     # 6 angles
     angles = []
-
+    val = 50
 
     # 3 points
         # 1. Left Shoulder
         # 2. Left Elbow
         # 3. Left Wrist
     
-    angle, image = plot_angle(pose.PoseLandmark.LEFT_SHOULDER.value,
-                              pose.PoseLandmark.LEFT_ELBOW.value,
-                              pose.PoseLandmark.LEFT_WRIST.value, landmark_results, image, h, w)
+    angle, image = plot_angle(mp_pose.PoseLandmark.LEFT_SHOULDER.value,
+                              mp_pose.PoseLandmark.LEFT_ELBOW.value,
+                              mp_pose.PoseLandmark.LEFT_WRIST.value, landmarks, image, h, w + val)
+    angles.append(angle)
+    angle, image = plot_angle(mp_pose.PoseLandmark.RIGHT_SHOULDER.value,
+                              mp_pose.PoseLandmark.RIGHT_ELBOW.value,
+                              mp_pose.PoseLandmark.RIGHT_WRIST.value, landmarks, image, h, w - val)
+    angles.append(angle)
+    angle, image = plot_angle(mp_pose.PoseLandmark.LEFT_HIP.value,
+                              mp_pose.PoseLandmark.LEFT_KNEE.value,
+                              mp_pose.PoseLandmark.LEFT_ANKLE.value, landmarks, image, h, w + val)
+    angles.append(angle)
+    angle, image = plot_angle(mp_pose.PoseLandmark.RIGHT_HIP.value,
+                              mp_pose.PoseLandmark.RIGHT_KNEE.value,
+                              mp_pose.PoseLandmark.RIGHT_ANKLE.value, landmarks, image, h, w - val)
+    angles.append(angle)
+
+
+
+    angle, image = plot_angle(mp_pose.PoseLandmark.LEFT_SHOULDER.value,
+                              mp_pose.PoseLandmark.LEFT_HIP.value,
+                              mp_pose.PoseLandmark.LEFT_KNEE.value, landmarks, image, h, w + val)
+    angles.append(angle)
+
+
+
+    angle, image = plot_angle(mp_pose.PoseLandmark.RIGHT_SHOULDER.value,
+                              mp_pose.PoseLandmark.RIGHT_HIP.value,
+                              mp_pose.PoseLandmark.RIGHT_KNEE.value, landmarks, image, h, w - val)
+    angles.append(angle)
+
+
+
+    angle, image = plot_angle(mp_pose.PoseLandmark.LEFT_WRIST.value,
+                             mp_pose.PoseLandmark.LEFT_SHOULDER.value,
+                             mp_pose.PoseLandmark.LEFT_HIP.value, landmarks, image, h, w + val)
+    angles.append(angle)
+
+
+
+
+    angle_wrist_shoulder_hip_right, image = plot_angle(mp_pose.PoseLandmark.RIGHT_WRIST.value,
+                                                       mp_pose.PoseLandmark.RIGHT_SHOULDER.value,
+                                                       mp_pose.PoseLandmark.RIGHT_HIP.value, landmarks, image, h,
+                                                       w - val)
+    
+    angles.append(angle_wrist_shoulder_hip_right)
+
     
 
-    angle = 56
 
-    angles.append(angle)
+    # cv2.imshow('Hopefully this works' , image)
+    # cv2.waitKey(1)
 
-    angle = 170
-
-    angles.append(angle)
-
-
-
+    return angles
 
 def draw_landmarks(results, mp_drawing, mp_pose, image):
     # for idx (index), x (value) in enumerate(_____):   \\storing both the index and the value
@@ -255,16 +357,16 @@ def pose_process_image(openCVFrame, poseModel : Pose ) -> tuple:
     # After this line, rgbImage now has the lines and marks
     landmark_results = poseModel.process(rgbImage)
     
-    if landmark_results.pose_landmarks:
+    # if landmark_results.pose_landmarks:
 
-        for id, landmark in enumerate(landmark_results.pose_landmarks.landmark):
+    #     for id, landmark in enumerate(landmark_results.pose_landmarks.landmark):
 
-            print(id)
-            print(f"x: {landmark.x}")
-            print(f"y: {landmark.y}")
-            print(f"z: {landmark.z}")
+    #         print(id)
+    #         print(f"x: {landmark.x}")
+    #         print(f"y: {landmark.y}")
+    #         print(f"z: {landmark.z}")
 
-            print()
+    #         print()
     
     
     # BGR  <-------- RGB
