@@ -8,6 +8,14 @@
 import os
 from pathlib import Path
 
+
+# Machline Learning Model Imports
+
+from sklearn import metrics
+from sklearn.cluster import KMeans
+from sklearn.model_selection import ParameterGrid
+
+
 # Functions 
 
 
@@ -21,6 +29,9 @@ def process_videos(videoPath1 : str , videoPath2 : str):
 
 
 
+
+    # 1) TO MP4
+
     # We want the video to be .mp4
 
     videoPath1 = convertToMp4(videoPath1)
@@ -31,10 +42,52 @@ def process_videos(videoPath1 : str , videoPath2 : str):
     # We want to get the "Frame Angles"
         # Frame Angles -- Array of different angles in the body (btwn shoulder elbow wrist)
 
-    frames1 , imageName1 = get_frames_angles(videoPath1)
-    frames2 , imageName2 = get_frames_angles(videoPath2)
+
+    # 2) Getting our data
+
+    video1FrameData , imageName1 = get_frames_angles(videoPath1)
+    video2FrameData , imageName2 = get_frames_angles(videoPath2)
+
+
+    # 3) Using Machine Learning
 
     
+    video1KeyFrames = []
+    video2KeyFrames = []
+
+    public_urls = get_image_urls(video1FrameData, video2FrameData, imageName1, imageName2, video1KeyFrames, video2KeyFrames)
+
+
+
+
+# 3) Using Machine Learning
+
+def get_image_urls(video1FrameData, video2FrameData, imageName1, imageName2):
+    
+
+    # 1) Use the Student Data (video1FrameData) and create the clusters
+
+    student_cluster = get_cluster(video1FrameData)
+
+
+
+def get_cluster(video1FrameData):
+    
+    numClusters = kmean_hyper_param_tuning(video1FrameData)
+
+
+
+
+# The NUMBER of key frames
+def kmean_hyper_param_tuning(video1FrameData):
+    
+    rangeOfNumbers = [2,3,4,5]
+
+    parameter_grid = ParameterGrid()
+
+
+# 2) Getting Data 
+
 def make_directory(name : str):
 
     # if the directory does NOT exist, create it
