@@ -62,7 +62,7 @@ def process_videos(videoPath1 : str , videoPath2 : str):
 
 # 3) Using Machine Learning
 
-def get_image_urls(video1FrameData, video2FrameData, imageName1, imageName2):
+def get_image_urls(video1FrameData, video2FrameData, imageName1, imageName2, video1KeyFrames, video2KeyFrames):
     
 
     # 1) Use the Student Data (video1FrameData) and create the clusters
@@ -75,15 +75,46 @@ def get_cluster(video1FrameData):
     
     numClusters = kmean_hyper_param_tuning(video1FrameData)
 
+    X = np.array(video1FrameData)
+
+    # Create KMeans model (best line of fit) with 'n' clusters using our video1 data
+    kmeans_1 = KMeans(n_clusters=numClusters).fit(X)
+    
 
 
 
 # The NUMBER of key frames
 def kmean_hyper_param_tuning(video1FrameData):
     
-    rangeOfNumbers = [2,3,4,5]
+    parameters = []
 
-    parameter_grid = ParameterGrid()
+
+    for i in range(2,31):
+        parameters.append(i)
+
+    parameter_grid = ParameterGrid({'n_clusters' : parameters})
+    
+    # go through params in parameter_grid (check which one is the best)
+    
+    best_score = -1
+    best_grid  = {}
+
+    kmeans_model = KMeans()
+
+    for p in parameter_grid:
+
+        kmeans_model.set_params(**p)
+        kmeans_model.fit(video1FrameData)
+
+        ss = metrics.silhouette_score(video1FrameData, kmeans_model.labels_)
+
+        print("Parameter:", p, 'Score:', ss)
+
+        if ss > best_score:
+            best_score = ss
+            best_grid = p
+
+    return best_grid['n_clusters']
 
 
 # 2) Getting Data 

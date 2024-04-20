@@ -1,65 +1,3 @@
-# # The NUMBER of key frames
-# def kmean_hyper_param_tuning(video1FrameData):
-    
-#     rangeOfNumbers = []
-
-#     # create a for loop that adds numbers 2 -- 30 to the list (rangeOfNumbers)
-
-
-#     # after the for loop, 
-
-#     # rangeOfNumbers = [2,3,4,5, .... 30]
-
-
-
-# x = 0.5 / 0.2
-# x = "hi"
-
-# class LeaguePlayer:
-
-
-#     def __init__(self, playerName, age) -> None:
-        
-#         self.playerName = playerName
-#         self.age = age
-#         self.heros = ["Darius" , "Esher"]
-
-
-
-#     def addHero(self,name):
-
-#         self.heros.append(name)
-    
-#     def birthday(self):
-#         self.age = self.age + 1
-
-
-# x = LeaguePlayer("ShengLin", 19)
-
-# print(x.heros)
-
-# x.addHero("Ziggs")
-
-# print(x.heros)
-
-# x.birthday()
-
-# print(x.age)
-
-
-
-# dictionary = {
-#     'name' : 'ShengLin',
-#     'age' : 19,
-#     'heros' : ['hero1', 'hero2'],
-# }
-
-# print(dictionary['name'])
-
-
-# Homework
-
-
 # Average error - anywhere from 0 -- 100
 def analyze_dance_quality(average_error):
 
@@ -123,4 +61,3 @@ def analyze_dance_quality(average_error):
 #    "Extremely Low Dance Quality. Substantial improvement is needed in every aspect of your dance " \
 #                "performance. Consider enrolling in beginner dance classes to develop fundamental skills and " \
 #                "techniques. "
-
