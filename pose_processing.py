@@ -73,17 +73,31 @@ def get_image_urls(video1FrameData, video2FrameData, imageName1, imageName2, vid
 
 def get_cluster(video1FrameData):
     
+    # Figure out how many there are
+
     numClusters = kmean_hyper_param_tuning(video1FrameData)
 
     X = np.array(video1FrameData)
 
     # Create KMeans model (best line of fit) with 'n' clusters using our video1 data
     kmeans_1 = KMeans(n_clusters=numClusters).fit(X)
+
+    student_cluster = []
+
+    start = 0
+             
+    labels = kmeans_1.labels_
     
+    for i in range(1,len(labels)):
 
 
 
 # The NUMBER of key frames
+
+# n_clusters - how many stages (pictures) there will be
+
+# purpose: determine how many pictures
+
 def kmean_hyper_param_tuning(video1FrameData):
     
     parameters = []
@@ -115,6 +129,59 @@ def kmean_hyper_param_tuning(video1FrameData):
             best_grid = p
 
     return best_grid['n_clusters']
+
+
+def analyze_dance_quality(average_error):
+    if 0 <= average_error <= 5:
+        return "Outstanding! Your dance performance is exceptional. Consider experimenting with complex choreography " \
+               "and unique movements to further elevate your skills. "
+    elif 5 < average_error <= 10:
+        return "Excellent Dance Performance. Your technique is nearly flawless. Try incorporating more expression " \
+               "and emotion into your movements for an even more captivating performance. "
+    elif 10 < average_error <= 15:
+        return "Very Impressive! Your dance quality is excellent with only minor imperfections. Focus on refining " \
+               "transitions and adding your personal touch to make your performance truly memorable. "
+    elif 15 < average_error <= 20:
+        return "Great Job! Your dance performance is strong. Work on perfecting specific poses and movements to " \
+               "enhance overall fluidity and grace. "
+    elif 20 < average_error <= 30:
+        return "Good Dance Performance. You're doing well, but there's room for improvement. Pay attention to details " \
+               "and explore variations in your dance routine to keep it engaging. "
+    elif 30 < average_error <= 40:
+        return "Competent Dance Performance. Your dance quality is solid, but there are noticeable areas for " \
+               "improvement. Practice specific movements and experiment with different styles to broaden your " \
+               "repertoire. "
+    elif 40 < average_error <= 50:
+        return "Fair Dance Performance. Your dance skills are average. Focus on mastering fundamental techniques, " \
+               "improving coordination, and maintaining good posture throughout your routine. "
+    elif 50 < average_error <= 60:
+        return "Needs Improvement. Significant improvement is required in various aspects of your dance performance. " \
+               "Consider seeking guidance from a dance instructor and dedicating more time to practice. "
+    elif 60 < average_error <= 70:
+        return "Below Average. Your dance quality needs substantial improvement. Work on foundational movements, " \
+               "posture, and timing. Regular practice and feedback from an instructor can make a significant " \
+               "difference. "
+    elif 70 < average_error <= 80:
+        return "Poor Dance Quality. Your performance is below expectations. Revisit basic dance principles, " \
+               "refine coordination, and seek personalized coaching to address specific weaknesses. "
+    elif 80 < average_error <= 90:
+        return "Very Low Dance Quality. Your dance skills are significantly below the desired standard. Consider " \
+               "starting with the basics, focusing on rhythm, and seeking intensive training to build a strong " \
+               "foundation. "
+    elif 90 < average_error <= 100:
+        return "Extremely Low Dance Quality. Substantial improvement is needed in every aspect of your dance " \
+               "performance. Consider enrolling in beginner dance classes to develop fundamental skills and " \
+               "techniques. "
+    else:
+        return "Invalid score. Please provide a score within the valid range (0-100)."
+
+
+
+
+
+
+
+
 
 
 # 2) Getting Data 

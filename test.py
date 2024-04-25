@@ -124,3 +124,19 @@ def analyze_dance_quality(average_error):
 #                "performance. Consider enrolling in beginner dance classes to develop fundamental skills and " \
 #                "techniques. "
 
+
+
+shoppingItems = ["Onion" , "Onion", "Banana", "Banana", "Banana"]
+
+for i in range(len(shoppingItems)):
+
+    print(i)
+
+# Onion
+# 2
+
+
+# Banana
+# 3
+
+
