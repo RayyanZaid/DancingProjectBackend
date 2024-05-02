@@ -54,20 +54,54 @@ def process_videos(videoPath1 : str , videoPath2 : str):
     
     video1KeyFrames = []
     video2KeyFrames = []
-
+                                                                #  golfVideo   golfVideo2
     public_urls = get_image_urls(video1FrameData, video2FrameData, imageName1, imageName2, video1KeyFrames, video2KeyFrames)
 
+
+    # TODO: Average Error and Suggestions
 
 
 
 # 3) Using Machine Learning
 
-def get_image_urls(video1FrameData, video2FrameData, imageName1, imageName2, video1KeyFrames, video2KeyFrames):
+def get_image_urls(studentVideoFrameData, professionalVideoFrameData, studentFolderName, professsionalFolderName, studentVideoKeyFrames : list, professionalVideoKeyFrames : list):
     
 
     # 1) Use the Student Data (video1FrameData) and create the clusters
 
-    student_cluster = get_cluster(video1FrameData)
+    student_cluster = get_cluster(studentVideoFrameData)
+
+    # 2) Create 2 groups of clusters and compare
+
+    public_urls = []
+
+    for label in student_cluster:
+        
+        
+        index_student = (label['start'] + label['end']) // 2
+
+        student_image = f"{studentFolderName}/{index_student}.jpg"
+
+        index_professional = 0  # TODO: change to distance formula next week
+
+        professional_image =  f"{professsionalFolderName}/{index_professional}.jpg"
+
+
+        # TODO: Set up the database
+
+
+        # TODO: Send student and professional images to database
+
+        
+
+
+        # update key frames to compare
+
+        studentVideoKeyFrames.append(studentVideoFrameData[index_student])
+        professionalVideoKeyFrames.append(professionalVideoFrameData[index_professional])
+
+
+    return public_urls
 
 
 
@@ -90,6 +124,28 @@ def get_cluster(video1FrameData):
     
     for i in range(1,len(labels)):
 
+        if labels[i] != labels[i-1]:
+            student_cluster.append(
+                {
+                    'start' : start,
+                    'end' : i - 1,
+                    'label' : labels[i-1]
+                }
+            )
+    
+    else:
+
+        # last cluster
+
+        student_cluster.append(
+                {
+                    'start' : start,
+                    'end' : i,
+                    'label' : labels[i]
+                }
+            )
+    
+    return student_cluster
 
 
 # The NUMBER of key frames

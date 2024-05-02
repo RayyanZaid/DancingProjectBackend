@@ -140,3 +140,14 @@ for i in range(len(shoppingItems)):
 # 3
 
 
+
+import cv2
+
+img1_text = "golfVideo/296.jpg"
+
+img_variable = cv2.imread(img1_text)
+
+cv2.imshow('window name', img_variable
+)
+
+cv2.waitKey(0)
